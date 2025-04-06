@@ -167,3 +167,4 @@ cython_debug/
 **/*.db.lock
 db/*
 jejom-*-firebase-adminsdk-*.json
+google-services.json
