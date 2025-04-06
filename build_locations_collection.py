@@ -3,19 +3,22 @@ import time
 import json
 import googlemaps
 from tqdm import tqdm
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
-# google maps api console: https://console.cloud.google.com/google/maps-apis/quotas?project=tough-volt-335906
+# google maps api console: https://console.cloud.google.com/google/maps-apis/credentials?invt=AbuCaw&project=tough-volt-335906
 # places api documentation: https://developers.google.com/maps/documentation/places/web-service/search-text
 
 
 # set all to TRUE for a one-shot setup of the whole locations database
-REFRESH_GMAPS = False    # 1: True to re-crawl all raw locations from google-maps
-FILTER_RAW = False   # 2: filters out irrelevant locations from raw data
-GET_DETAILED = False  # 3: get detailed information about each location
+REFRESH_GMAPS = True    # 1: True to re-crawl all raw locations from google-maps
+FILTER_RAW = True   # 2: filters out irrelevant locations from raw data
+GET_DETAILED = True  # 3: get detailed information about each location
 
 # API_KEY = "<place-your-google-maps-api-key-here>"
-API_KEY = "AIzaSyD3W5PNMkYXp7NqU5RZjIhrf_GNt2GOM64"
+API_KEY = os.getenv("GOOGLE_MAPS_API_KEY")
 gmaps = googlemaps.Client(key=API_KEY)
 
 RAW_DIR = os.path.join("locations", "raw")
@@ -40,14 +43,10 @@ PLACE_TYPES_KEYWORDS_TO_OMIT = {
     "restaurants": [],
 }
 KEY_REGIONS = [
-    'Jeju City (North)',
-    'Aewol (Northwest)',
-    'Seogwipo City (South)',
-    'Jungmun Tourist Complex (Southwest)',
-    'Seongsan (East)',
-    'Hallim (West)',
-    'Hallasan Mountain and National Park (Center)',
-    'Pyoseon and Seongeup (East-Central)'
+    'Tainan',
+    'Taipei',
+    'Taichung',
+    'Kaohsiung'
 ]
 SEARCH_RADIUS = 10000  # m
 
@@ -71,11 +70,11 @@ def get_locations(query: str, type: str, radius: int=50000, lang: str='en-US', p
 
 
 if REFRESH_GMAPS:
-    # this will re-crawl all raw locations in Jeju Island from Google Places API
+    # this will re-crawl all raw locations in Taiwan from Google Places API
     for place_type, file_basename in tqdm(PLACE_TYPES.items()):
         locations = {}
         for key_region in tqdm(KEY_REGIONS):
-            locations_region = get_locations(query=f"{place_type}s in {key_region}, Jeju Island", radius=SEARCH_RADIUS, type=place_type)
+            locations_region = get_locations(query=f"{place_type}s in {key_region}, Taiwan", radius=SEARCH_RADIUS, type=place_type)
             print(f"[key-region] : {key_region} got {len(list(locations_region.keys()))} results")
 
             filepath = os.path.join(RAW_DIR, file_basename)
