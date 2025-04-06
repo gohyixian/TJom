@@ -1,4 +1,4 @@
-name: jejom-llama
+name: tjom-llama
 channels:
   - conda-forge
 dependencies:
