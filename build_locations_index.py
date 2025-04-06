@@ -7,10 +7,11 @@ from datetime import datetime
 
 from llama_index.core import VectorStoreIndex, StorageContext, PromptTemplate, Settings
 from llama_index.vector_stores.milvus import MilvusVectorStore
-# from llama_index.llms.openai import OpenAI
+from llama_index.llms.openai import OpenAI
+from llama_index.embeddings.openai import OpenAIEmbedding
 # from llama_index.llms.nvidia import NVIDIA
-from llama_index.llms.upstage import Upstage
-from llama_index.embeddings.upstage import UpstageEmbedding
+# from llama_index.llms.upstage import Upstage
+# from llama_index.embeddings.upstage import UpstageEmbedding
 from llama_index.core.schema import TextNode
 
 
@@ -26,10 +27,9 @@ TEST_VECTOR_INDEX = False   # for testing purposes only, always set to False
 
 TO_OMIT = ['.DS_Store']  # mac cache
 
-# Settings.llm = Groq(model='llama3-groq-70b-8192-tool-use-preview')
-Settings.llm = Upstage(model='solar-pro')
-Settings.embed_model=UpstageEmbedding(model='solar-embedding-1-large')
-EMBED_MODEL_SIZE = 4096
+Settings.llm=OpenAI(model='gpt-3.5-turbo')
+Settings.embed_model=OpenAIEmbedding(model='text-embedding-3-small')
+EMBED_MODEL_SIZE = 1536 # text-embedding-3-small
 
 all_categories = [
     'hotels',
@@ -39,7 +39,7 @@ all_categories = [
 
 GENERATE_HOTEL_DESCRIPTION_PROMPT = PromptTemplate(
     """
-    You are a description generator for a hotel in Jeju Island. 
+    You are a description generator for a hotel in Taiwan. 
     You will be provided the name, brief description, location, overall rating, and multiple reviews about the hotel.
     Your task is to generate a **comprehensive, well-rounded** description that covers important aspects of the hotel, making it suitable for embedding and retrieval based on user queries.
 
@@ -67,7 +67,7 @@ GENERATE_HOTEL_DESCRIPTION_PROMPT = PromptTemplate(
 
 GENERATE_RESTAURANT_DESCRIPTION_PROMPT = PromptTemplate(
     """
-    You are a description generator for a restaurant in Jeju Island. 
+    You are a description generator for a restaurant in Taiwan. 
     You will be provided the name, brief description, location, overall rating, and multiple reviews about the restaurant.
     Your task is to generate a **comprehensive, well-rounded** description that highlights key aspects of the restaurant, making it suitable for embedding and retrieval based on user queries.
 
@@ -78,7 +78,7 @@ GENERATE_RESTAURANT_DESCRIPTION_PROMPT = PromptTemplate(
     - **Type of cuisine** and signature dishes (local specialties, fusion, international cuisine, etc.).
     - **Who the restaurant is ideal for** (families, couples, solo diners, large groups, foodies, etc.).
     - The restaurant’s **atmosphere** (casual, fine dining, cozy, modern).
-    - **Proximity to key landmarks** or tourist spots in Jeju Island.
+    - **Proximity to key landmarks** or tourist spots in Taiwan.
     - Guest experiences from reviews, focusing on the **quality of food, service, and overall dining experience**.
     - Any notable **value propositions** (affordability, unique offerings, famous chefs, etc.).
 
@@ -96,7 +96,7 @@ GENERATE_RESTAURANT_DESCRIPTION_PROMPT = PromptTemplate(
 
 GENERATE_ATTRACTION_DESCRIPTION_PROMPT = PromptTemplate(
     """
-    You are a description generator for a tourist attraction in Jeju Island.
+    You are a description generator for a tourist attraction in Taiwan.
     You will be provided with the name, brief description, location, overall rating, and visitor reviews about the attraction.
     Your task is to generate a **comprehensive, engaging** description that highlights the key aspects of the attraction, making it suitable for embedding and retrieval based on user queries.
 
@@ -107,7 +107,7 @@ GENERATE_ATTRACTION_DESCRIPTION_PROMPT = PromptTemplate(
     - **Type of attraction** (natural landmark, cultural site, historical monument, adventure spot, etc.).
     - **What visitors can expect** (scenic views, activities, exhibits, wildlife, cultural experiences, etc.).
     - **Who the attraction is ideal for** (families, adventurers, history enthusiasts, nature lovers, etc.).
-    - The attraction’s **location and proximity to key landmarks** or other popular places in Jeju Island.
+    - The attraction’s **location and proximity to key landmarks** or other popular places in Taiwan.
     - Visitor experiences from reviews, emphasizing **what makes the visit memorable** (e.g., beauty, accessibility, uniqueness).
     - Any notable **special features** (e.g., seasonal events, guided tours, hidden gems, rare wildlife, etc.).
 
@@ -125,7 +125,7 @@ GENERATE_ATTRACTION_DESCRIPTION_PROMPT = PromptTemplate(
 
 GENERATE_ATTRACTION_SUITABLE_TIMES_PROMPT = PromptTemplate(
     """
-    You are given the name of a tourist destination in Jeju along with its description, opening times, and public reviews. Based on this information, determine which times of day the location is suitable for a visit.
+    You are given the name of a tourist destination in Taiwan along with its description, opening times, and public reviews. Based on this information, determine which times of day the location is suitable for a visit.
 
     Consider the following factors:
     - **Opening Times**: Ensure that the suggested times fall within the destination's opening hours (if available).
@@ -303,7 +303,7 @@ if GENERATE_VECTOR_INDEX:
 
 if TEST_VECTOR_INDEX:
     # user_query = "Get me a restaurant that has a nice view beside the ocean. Also, i need halal food!"
-    # user_query = "i love korean food! especially bibimbap. get me one near the jeju international airport"
+    # user_query = "i love taiwan street snacks! get me one near the taiwan international airport"
     user_query = "i love scenic views, get me one that is suitable for evening times!"
     similarity_top_k = 400
     # uri = os.path.join("locations", "descriptions_vector_store", "hotels.db")

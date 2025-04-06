@@ -17,14 +17,6 @@ from json_repair import repair_json  # LLM JSON output fixing if necessary
 from tavily import TavilyClient
 from llama_index.core import VectorStoreIndex, StorageContext, PromptTemplate, Settings
 from llama_index.vector_stores.milvus import MilvusVectorStore
-# from llama_index.llms.openai import OpenAI
-# from llama_index.llms.nvidia import NVIDIA
-from llama_index.llms.groq import Groq
-# from llama_index.llms.upstage import Upstage
-from llama_index.embeddings.openai import OpenAIEmbedding
-from llama_index.embeddings.upstage import UpstageEmbedding
-from llama_index.core.tools import QueryEngineTool, ToolMetadata, FunctionTool
-from llama_index.agent.openai import OpenAIAgent
 from llama_index.core.schema import BaseNode
 
 from google.cloud import firestore
@@ -93,9 +85,9 @@ numPersons_extraction = PromptTemplate(
 
 departure_airport_IATA_extraction = PromptTemplate(
     """
-    You are given a description about an end user that includes their residing address, area, or country. Based on the provided description, your task is to output the **3-character IATA code** of the most appropriate departure airport if the user were to travel on a direct flight to Jeju International Airport (CJU).
+    You are given a description about an end user that includes their residing address, area, or country. Based on the provided description, your task is to output the **3-character IATA code** of the most appropriate departure airport if the user were to travel on a direct flight to Taiwan Taoyuan International Airport (TPE).
 
-    - The model must output only one single IATA code for the closest major airport suitable for a direct flight to CJU.
+    - The model must output only one single IATA code for the closest major airport suitable for a direct flight to Taiwan Taoyuan International Airport (TPE).
     - If there are multiple possible airports, select the most prominent or largest one based on the user's location.
 
     Query: {user_specs}
@@ -106,7 +98,7 @@ departure_airport_IATA_extraction = PromptTemplate(
 
 flight_class_selection_prompt = PromptTemplate(
     """
-    You are a decision-making model that selects the most suitable flight class for a user's trip to Jeju Island. 
+    You are a decision-making model that selects the most suitable flight class for a user's trip to Taiwan. 
     The user query will include information about their budget, preferences, and any additional details about the trip.
 
     --Goal--
@@ -149,7 +141,7 @@ get_starting_date_prompt = PromptTemplate(
     You will be given a piece of context where you will extract the starting date from.
     
     Example Input:
-    Context: I wish to visit Jeju Island from 5 - 9 April 2024. Can you plan me a trip? I saved up around MYR 5000 for this trip. City Lover, Male, 30, ENTJ, Loves beachball
+    Context: I wish to visit Taiwan from 5 - 9 April 2025. Can you plan me a trip? I saved up around MYR 5000 for this trip. City Lover, Male, 30, ENTJ, Loves beachball
     
     Corresponding Output:
     2024-04-05
@@ -165,7 +157,7 @@ get_ending_date_prompt = PromptTemplate(
     You will be given a piece of context where you will extract the ending date from.
     
     Example Input:
-    Context: I wish to visit Jeju Island from 5 - 9 April 2024. Can you plan me a trip? I saved up around MYR 5000 for this trip. City Lover, Male, 30, ENTJ, Loves beachball
+    Context: I wish to visit Taiwan from 5 - 9 April 2025. Can you plan me a trip? I saved up around MYR 5000 for this trip. City Lover, Male, 30, ENTJ, Loves beachball
     
     Corresponding Output:
     2024-04-09
@@ -226,7 +218,7 @@ generate_tourist_attraction_preference_prompt = PromptTemplate(
 
 tourist_attraction_pipeline_selection_prompt = PromptTemplate(
     """
-    You are a decision-making model that selects the most suitable type of destinations based on the user's preferences and query about a trip to Jeju Island. 
+    You are a decision-making model that selects the most suitable type of destinations based on the user's preferences and query about a trip to Taiwan. 
     The goal is to determine whether the recommended destinations should be:
     - any locations (any rating, any number of ratings),
     - locations with high ratings but any number of ratings, or
@@ -258,7 +250,7 @@ tourist_attraction_pipeline_selection_prompt = PromptTemplate(
 
 generate_user_visiting_times_preferences_prompt = PromptTemplate(
     """
-    You are given a user description, including their preferences, and a user query about planning a trip to Jeju Island. Based on this information, determine whether the user would prefer to wake up early at dawn or stay up till night to visit tourist spots.
+    You are given a user description, including their preferences, and a user query about planning a trip to Taiwan. Based on this information, determine whether the user would prefer to wake up early at dawn or stay up till night to visit tourist spots.
 
     Consider the following factors:
     - If the user is likely to prefer visiting tourist spots at dawn but not at night, strictly output "dawn".
@@ -313,7 +305,7 @@ class PipelineV2():
         tourist_spots_json: str = os.path.join('locations', 'detailed', 'tourist_spots_detailed.json'),
         firestore_db: firestore.Client = None,
         firestore_db_path: str = None
-        ):
+    ):
         # accomodations
         accomodations_vector_store = MilvusVectorStore(uri=accomodations_vec_db_uri, dim=embed_model_size, overwrite=False)
         accomodations_storage_context = StorageContext.from_defaults(vector_store=accomodations_vector_store)
@@ -424,12 +416,12 @@ class PipelineV2():
             "api_key": os.getenv(SERPAPI_API_KEY_VAE_NAME),
             "engine": "google_flights",
             "hl": "en",
-            "gl": "kr",  # "my"
+            "gl": "tw",  # "my"
             "departure_id": str(departure_IATA),
-            "arrival_id": "CJU",
+            "arrival_id": "TPE",
             "outbound_date": str(outbound_date),
             "return_date": str(return_date),
-            "currency": "KRW",
+            "currency": "TWD",
             "type": "1",
                 # 1 - Round trip (default)
                 # 2 - One way
@@ -577,8 +569,8 @@ class PipelineV2():
     def generate_trip(self, end_user_specs: str, end_user_query: str):
         # end_user_specs = "Loves a chill life, doesnt like crowded places, loves coffee, artistic, female, 25, ENTP"
         # end_user_specs = "Nature Lover, Photography, Solo-Traveller"
-        # end_user_final_query = "Can you plan me a trip to Jeju Island from 18 January to 20 January in 2025? My budget is around MYR 3000. " + end_user_specs
-        # end_user_final_query = "Can you plan me a 3-day trip to Jeju Island starting from 18 January 2025? My budget is around MYR 3000. " + end_user_specs
+        # end_user_final_query = "Can you plan me a trip to Taiwan from 18 January to 20 January in 2026? My budget is around MYR 3000. " + end_user_specs
+        # end_user_final_query = "Can you plan me a 3-day trip to Taiwan starting from 18 January 2026? My budget is around MYR 3000. " + end_user_specs
 
         starting_date = Settings.llm.complete(get_starting_date_prompt.format(query_str=end_user_query))
         ending_date = Settings.llm.complete(get_ending_date_prompt.format(query_str=end_user_query))
