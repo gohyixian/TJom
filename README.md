@@ -2,6 +2,7 @@
 1. Build Docker image
     ```bash
     cd to this directory
+    
     docker build --no-cache -t taiwan-jom-app .
     ```
 2. Create a new container based on built image and run. If you wish to directly start the inferencing server, run:

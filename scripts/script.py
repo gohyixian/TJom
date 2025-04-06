@@ -1,7 +1,8 @@
 import os
 import json
 from crewai import Agent, Task, Crew, Process
-from langchain_upstage import ChatUpstage
+# from langchain_upstage import ChatUpstage
+from langchain_openai import ChatOpenAI
 from crewai_tools import PDFSearchTool
 from openai import OpenAI
 import gradio as gr
@@ -12,24 +13,32 @@ from docx import Document
 import gradio as gr
 from docx.shared import Pt
 
-# Set environment variables
-os.environ["UPSTAGE_API_BASE"] = "https://api.upstage.ai/v1/solar"
-os.environ["UPSTAGE_API_KEY"] = "up_sxQRRcrbTmgfXVNaxuWpTgkd5Yuig"
+# # Set environment variables
+# os.environ["UPSTAGE_API_BASE"] = "https://api.upstage.ai/v1/solar"
+# os.environ["UPSTAGE_API_KEY"] = "up_sxQRRcrbTmgfXVNaxuWpTgkd5Yuig"
+
+OUTPUT_DIR = "scripts/outputs/tmp"
+if not os.path.exists(OUTPUT_DIR):
+    os.makedirs(OUTPUT_DIR)
 
 class ScriptGenerator:
     def __init__(self, characters_num,cafe_name,cafe_environment):
         self.characters_num = characters_num
         self.cafe_name= cafe_name
         self.cafe_environment = cafe_environment
-        self.llm = ChatUpstage()
+        # self.llm = ChatUpstage()
+        self.llm = ChatOpenAI(model='gpt-3.5-turbo')
         self.rag_tool = PDFSearchTool(
-            pdf='/Users/debbiechoonghuitian/Jejom-1/scripts/outputs/Jeju.pdf',
+            pdf='scripts/outputs/Jeju.pdf',
             config=dict(
                 llm=dict(
                     provider="openai",
                     config=dict(
-                        model="solar-1-mini-chat",
+                        model="gpt-3.5-turbo",
                     ),
+                    # config=dict(
+                    #     model="solar-1-mini-chat",
+                    # ),
                 ),
                 embedder=dict(
                     provider="huggingface",
@@ -115,21 +124,21 @@ class ScriptGenerator:
             description="""Determine the background setting for the murder mystery, drawing inspiration from the legends, myths, history, and culture of Jeju Island. The storyline does not necessarily need to be set on Jeju Island. Focus on creating a rich, atmospheric setting that influences the characters' actions and motivations. The story should revolve around four key characters, each connected to these cultural and historical elements in some way.""",
             expected_output="A detailed background story inspired by Jeju Island's legends, history, and culture, including the crime scene setting, the course of the case, and key event descriptions. ",
             agent=self.script_planner,
-            output_file="background_setting.txt"
+            output_file=os.path.join(OUTPUT_DIR, "background_setting.txt")
         )
 
         self.character_creation_task = Task(
             description="""Create complete character profiles for each character, including backstories, motivations, secrets, and relationships with other characters. Ensure that each character has a unique personality and story.""",
             expected_output="A detailed list of all characters, with each character having a complete profile, including backstories, motivations, secrets, and relationships.",
             agent=self.character_designer,
-            output_file="character.txt"
+            output_file=os.path.join(OUTPUT_DIR, "character.txt")
         )
 
         self.script_writing_task = Task(
             description=f"""Write a complete 4-day event log leading to the crime day for all the {self.characters_num} characters. Ensure each log is fully written, with no unfinished sentences or thoughts. Include specific dates, key events, thoughts, plans, and interactions that provide insight into the character's motives and actions. Each event log should conclude with a summary or reflective thought that naturally completes the narrative.""",
             expected_output="A complete 4-day event log for each character. Write for all characters",
             agent=self.script_writer_agent,
-            output_file="character_event_log.txt"
+            output_file=os.path.join(OUTPUT_DIR, "character_event_log.txt")
         )
 
         self.player_writing_instruction_task = Task(
@@ -138,26 +147,26 @@ class ScriptGenerator:
             Create a guide and explanation on how to roleplay each character in these rounds. For each character, write the character's name followed by the detailed instructions for each round of discussion for that character. Don't expose the murderer. Put all the instructions for each character together in a clear and organized format.""",
             expected_output="A list of guide and explanation on what the players have to do to roleplay their characters, titled with the character's name followed by detailed instructions for each round. Ensure that each character's instructions are presented together and clearly labeled. Make it more personal for each character.",
             agent=self.player_writer_agent,
-            output_file="player_instructions.txt"
+            output_file=os.path.join(OUTPUT_DIR, "player_instructions.txt")
         )
 
         self.clue_design_task = Task(
             description="""Design 4 clues that players discover in the game, ensuring that these clues are challenging and fit the plot logic. Each character should have 2 key clues and 2 misleading clues. Title each section with the character's name followed by the list of their clues and misleading clues.""",
             expected_output="A list of 4 clues for each character, including 2 key clues and 2 misleading clues, with explanations of their role in the story. Ensure each character's section is titled with the character's name, and the clues are clearly labeled as key clues or misleading clues.",
             agent=self.clue_generator,
-            output_file="player_clues.txt"
+            output_file=os.path.join(OUTPUT_DIR, "player_clues.txt")
         )
         self.title = Task(
             description="""Write the title for the script generated.""",
             expected_output="Output a title",
             agent=self.titler,
-            output_file="title.txt"
+            output_file=os.path.join(OUTPUT_DIR, "title.txt")
         )
         self.time = Task(
             description="""Write the game duraction""",
             expected_output=" Just right the answer as '2-3hours'. Don't write full sentences, just a direct duration",
             agent=self.timer,
-            output_file="time_taken.txt"
+            output_file=os.path.join(OUTPUT_DIR, "time_taken.txt")
         )
 
     def run_tasks(self):
@@ -181,7 +190,7 @@ class ScriptGenerator:
             except Exception as e:
                 print(f"Error reading file for {task.agent.role}: {e}")
 
-        output_json_path = "all_task_outputs.json"
+        output_json_path = os.path.join(OUTPUT_DIR, "all_task_outputs.json")
         with open(output_json_path, 'w') as json_file:
             json.dump(task_outputs, json_file, indent=5)
         
@@ -194,10 +203,12 @@ class ScriptGenerator:
 import json
 
 class Translator:
-    def __init__(self, api_key):
-        self.client = OpenAI(api_key=api_key, base_url="https://api.upstage.ai/v1/solar")
+    def __init__(self, api_key=None):
+        # self.client = OpenAI(api_key=api_key, base_url="https://api.upstage.ai/v1/solar")
+        self.client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"), base_url="https://api.openai.com/v1")
 
-    def translate_text(self, text, model="solar-1-mini-translate-enko", chunk_size=1600):
+    # def translate_text(self, text, model="solar-1-mini-translate-enko", chunk_size=1600):
+    def translate_text(self, text, model="gpt-3.5-turbo", chunk_size=1600):
         # Split the text into chunks, making sure not to split in the middle of a sentence
         import re
         

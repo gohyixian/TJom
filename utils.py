@@ -1,7 +1,8 @@
 import json
 import os
 import re
-from llama_index.llms.upstage import Upstage
+# from llama_index.llms.upstage import Upstage
+from llama_index.llms.openai import OpenAI
 from llama_index.core.llms import ChatMessage
 
 def read_file(file_path: str, file_type: str):
@@ -24,7 +25,8 @@ def parse_output(output: str, fields: list[str]) -> dict:
     return parsed_data
 
 def generate_upstage_response(input: str):
-    llm = Upstage(api_key=os.getenv('UPSTAGE_API_KEY'))
+    # llm = Upstage(api_key=os.getenv('UPSTAGE_API_KEY'))
+    llm = OpenAI(model="gpt-3.5-turbo", temperature=0.0)
  
     response = llm.complete(
         prompt=input,

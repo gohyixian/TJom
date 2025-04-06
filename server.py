@@ -25,7 +25,7 @@ app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": [f"http://10.168.105.128:{args.server_port}", "*"]}})
 
 load_dotenv()
-Settings.llm=OpenAI(model='gpt-3.5-turbo')
+Settings.llm=OpenAI(model='gpt-3.5-turbo', temperature=0.0)
 Settings.embed_model=OpenAIEmbedding(model='text-embedding-3-small')
 
 # FIREBASE_CRED_FILE = "google-services.json"
@@ -130,13 +130,13 @@ def generate_script():
 
             return jsonify({
                 "eng_script": add_images_to_script(read_file(output_json_path, "json")),
-                "kor_script": add_images_to_script(read_file(output_file_path, "json")),
+                "cn_script": add_images_to_script(read_file(output_file_path, "json")),
             })
 
         else:
             return jsonify({
-                "eng_script": add_images_to_script(read_file("output_folder/script.json", "json")),
-                "kor_script": add_images_to_script(read_file("output_folder/translated_output.json", "json")),
+                "eng_script": read_file("sample_usages/script.json", "json"),
+                "cn_script": read_file("sample_usages/translated_output.json", "json"),
             })
     except Exception as e:
         return jsonify({"error": f"Error generating script: {e}"})

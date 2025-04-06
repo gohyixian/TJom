@@ -168,3 +168,4 @@ cython_debug/
 db/*
 jejom-*-firebase-adminsdk-*.json
 google-services.json
+scripts/outputs/tmp/*

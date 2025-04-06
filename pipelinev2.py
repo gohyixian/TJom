@@ -93,7 +93,7 @@ departure_airport_IATA_extraction = PromptTemplate(
 
     Query: {user_specs}
 
-    Output the airport's IATA code as a 3-character string with **no additional text**.
+    Output only the airport's IATA code as a 3-character string with **no additional text**.
     """
 )
 
@@ -932,7 +932,8 @@ class PipelineV2():
                             # if "weekday_text" in mmgc["current_opening_hours"].keys():
                             #     opening_hours = mmgc["current_opening_hours"]["weekday_text"]
                             # else:
-                            opening_hours = ['Not Available']
+                            #     opening_hours = ['Not Available']
+                            opening_hours = [mmgc["current_opening_hours"]]
                         else:
                             opening_hours = ['Not Available']
                         # photos
