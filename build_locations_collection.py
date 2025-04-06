@@ -13,9 +13,9 @@ load_dotenv()
 
 
 # set all to TRUE for a one-shot setup of the whole locations database
-REFRESH_GMAPS = True    # 1: True to re-crawl all raw locations from google-maps
-FILTER_RAW = True   # 2: filters out irrelevant locations from raw data
-GET_DETAILED = True  # 3: get detailed information about each location
+REFRESH_GMAPS = False    # 1: True to re-crawl all raw locations from google-maps
+FILTER_RAW = False   # 2: filters out irrelevant locations from raw data
+GET_DETAILED = False  # 3: get detailed information about each location
 
 # API_KEY = "<place-your-google-maps-api-key-here>"
 API_KEY = os.getenv("GOOGLE_MAPS_API_KEY")

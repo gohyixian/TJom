@@ -45,6 +45,16 @@ def extract_photo_reference(trip: dict):
             entry['Photos'] = photo_refs
     return trip
 
+def extract_single_date(text: str) -> str:
+    # Use regex to extract date in YYYY-MM-DD format
+    match = re.search(r"\d{4}-\d{2}-\d{2}", text)
+
+    if match:
+        date_str = match.group(0)
+        return date_str
+    else:
+        return ""
+
 # if __name__ == '__main__':
 #     trip_dict = read_file('sample_usages/generate_trip.json', 'json')['data']
 #     print(extract_photo_reference(trip_dict))

@@ -1,3 +1,37 @@
+# Running the backend with Docker
+1. Build Docker image
+    ```bash
+    cd to this directory
+    docker build --no-cache -t taiwan-jom-app .
+    ```
+2. Create a new container based on built image and run. If you wish to directly start the inferencing server, run:
+    ```bash
+    docker run -it --rm -p 5000:5000 taiwan-jom-app /bin/bash -c "python server.py -a 0.0.0.0 -p 5000"
+    ```
+
+</br>
+
+# Pushing the built image to DockerHub
+```bash
+docker login
+
+docker tag taiwan-jom-app yixian02/taiwan-jom-app:python-3.10-slim
+
+docker push yixian02/taiwan-jom-app:python-3.10-slim
+```
+Verify your push <a href='https://hub.docker.com/u/yixian02'>here</a>.
+
+</br>
+
+# Pulling and Running the built image from DockerHub
+```bash
+docker pull yixian02/taiwan-jom-app:python-3.10-slim
+
+docker run -it --rm -p 5000:5000 yixian02/taiwan-jom-app:python-3.10-slim /bin/bash -c "python server.py -a 0.0.0.0 -p 5000"
+```
+
+<br/>
+
 ## API Keys
 Create a file named <code>.env</code> at the same directory level as this <code>README.md</code>, and define the below:
 - <code>OPENAI_API_KEY = "<a href='https://platform.openai.com/api-keys'>get_your_upstage_api_key_here</a>"</code>

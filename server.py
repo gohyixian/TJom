@@ -3,27 +3,33 @@ from flask_cors import CORS
 import os
 import json
 import time
+import argparse
 from dotenv import load_dotenv
 import firebase_admin
 from firebase_admin import credentials, firestore
 from llama_index.core import Settings
-from llama_index.llms.upstage import Upstage
-from llama_index.embeddings.upstage import UpstageEmbedding
+from llama_index.llms.openai import OpenAI
+from llama_index.embeddings.openai import OpenAIEmbedding
 from image_generator import add_images_to_script, get_place_img
 from scripts.script import ScriptGenerator, Translator
 from utils import extract_photo_reference, read_file
 
 
+parser = argparse.ArgumentParser(description='Backend Server Deployment')
+parser.add_argument('-a', '--server_address', type=str, default='127.0.0.1' ,help='Server address')
+parser.add_argument('-p', '--server_port', type=int, default=5000 ,help='Server port')
+args = parser.parse_args()
 
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": ["http://10.168.105.128:5000", "*"]}})
+CORS(app, resources={r"/*": {"origins": [f"http://10.168.105.128:{args.server_port}", "*"]}})
 
 load_dotenv()
-Settings.llm = Upstage(model='solar-pro')
-Settings.embed_model=UpstageEmbedding(model='solar-embedding-1-large')
+Settings.llm=OpenAI(model='gpt-3.5-turbo')
+Settings.embed_model=OpenAIEmbedding(model='text-embedding-3-small')
 
-FIREBASE_CRED_FILE = "google-services.json"
+# FIREBASE_CRED_FILE = "google-services.json"
+FIREBASE_CRED_FILE = "jejom-d5d61-firebase-adminsdk-hxhng-6f02508a1f.json"
 cred = credentials.Certificate(FIREBASE_CRED_FILE)
 firebase_admin.initialize_app(cred)
 db = firestore.client()
@@ -31,7 +37,7 @@ db = firestore.client()
 
 from pipelinev2 import PipelineV2
 pipeline = PipelineV2(
-    embed_model_size         = 4096,
+    embed_model_size         = 1536, # text-embedding-3-small
     accomodations_sim_top_k  = 500,
     restaurants_sim_top_k    = 500,
     tourist_spots_sim_top_k  = 500,
@@ -138,5 +144,5 @@ def generate_script():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host='127.0.0.1', use_reloader=False)
+    app.run(debug=True, host=args.server_address, use_reloader=False)
     # app.run(debug=True, host='0.0.0.0', use_reloader=False)

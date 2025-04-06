@@ -21,6 +21,7 @@ from llama_index.core.schema import BaseNode
 
 from google.cloud import firestore
 
+from utils import extract_single_date
 
 load_dotenv()
 VERBOSE = False
@@ -568,12 +569,15 @@ class PipelineV2():
 
     def generate_trip(self, end_user_specs: str, end_user_query: str):
         # end_user_specs = "Loves a chill life, doesnt like crowded places, loves coffee, artistic, female, 25, ENTP"
-        # end_user_specs = "Nature Lover, Photography, Solo-Traveller"
+        end_user_specs = "Nature Lover, Photography, Solo-Traveller"
         # end_user_final_query = "Can you plan me a trip to Taiwan from 18 January to 20 January in 2026? My budget is around MYR 3000. " + end_user_specs
-        # end_user_final_query = "Can you plan me a 3-day trip to Taiwan starting from 18 January 2026? My budget is around MYR 3000. " + end_user_specs
+        end_user_final_query = "Can you plan me a 3-day trip to Taiwan starting from 18 January 2026? My budget is around MYR 3000. " + end_user_specs
 
         starting_date = Settings.llm.complete(get_starting_date_prompt.format(query_str=end_user_query))
         ending_date = Settings.llm.complete(get_ending_date_prompt.format(query_str=end_user_query))
+        
+        starting_date = extract_single_date(str(starting_date))
+        ending_date = extract_single_date(str(ending_date))
 
         print(starting_date)
         print(ending_date)
@@ -879,6 +883,7 @@ class PipelineV2():
             destination_average_lat_long = get_lat_long_average(current_date_destination_list)
             distanced_accomodations_list_of_dict = get_batch_distance(destination_average_lat_long[0], destination_average_lat_long[1], accomodations_list_of_dict)
             
+            # # TODO: upload MMG cafes to firestore
             if idx == date_idx_to_add_mmgc:
                 # get firestore MMG cafes
                 docs = self.firestore_db.collection(self.firestore_db_path).get()
@@ -887,8 +892,10 @@ class PipelineV2():
                     doc_dict = doc.to_dict()
                     doc_dict['id'] = str(doc.id)
                     doc_dict['isMurderMysteryCafe'] = True
-                    doc_dict['Latitude'] = float(doc_dict['geometry']['location']['lat'])
-                    doc_dict['Longitude'] = float(doc_dict['geometry']['location']['lng'])
+                    # doc_dict['Latitude'] = float(doc_dict['geometry']['location']['lat'])
+                    # doc_dict['Longitude'] = float(doc_dict['geometry']['location']['lng'])
+                    doc_dict['Latitude'] = float(doc_dict['lat'])
+                    doc_dict['Longitude'] = float(doc_dict['long'])
                     mmgc_docs_formatted.append(doc_dict)
                 distanced_mmgc_docs_formatted = get_batch_distance(destination_average_lat_long[0], destination_average_lat_long[1], mmgc_docs_formatted)
                 distanced_mmgc_docs_formatted = sorted(distanced_mmgc_docs_formatted, key=lambda x: x['_distance_from_target'], reverse=True)
@@ -906,8 +913,10 @@ class PipelineV2():
                         google_place_id = mmgc['place_id']
                         price = "Not available"  # TODO: FIX
                         address = str(mmgc['address'])   # formatted_address
-                        lat = float(mmgc['geometry']['location']['lat'])
-                        lng = float(mmgc['geometry']['location']['lng'])
+                        # lat = float(mmgc['geometry']['location']['lat'])
+                        # lng = float(mmgc['geometry']['location']['lng'])
+                        lat = float(mmgc['lat'])
+                        lng = float(mmgc['long'])
                         # rating
                         if 'rating' in mmgc.keys():
                             rating = str(mmgc['rating'])
@@ -920,10 +929,10 @@ class PipelineV2():
                             num_ratings = 0
                         # opening hours
                         if "current_opening_hours" in mmgc.keys():
-                            if "weekday_text" in mmgc["current_opening_hours"].keys():
-                                opening_hours = mmgc["current_opening_hours"]["weekday_text"]
-                            else:
-                                opening_hours = ['Not Available']
+                            # if "weekday_text" in mmgc["current_opening_hours"].keys():
+                            #     opening_hours = mmgc["current_opening_hours"]["weekday_text"]
+                            # else:
+                            opening_hours = ['Not Available']
                         else:
                             opening_hours = ['Not Available']
                         # photos

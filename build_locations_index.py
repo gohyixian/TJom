@@ -9,9 +9,6 @@ from llama_index.core import VectorStoreIndex, StorageContext, PromptTemplate, S
 from llama_index.vector_stores.milvus import MilvusVectorStore
 from llama_index.llms.openai import OpenAI
 from llama_index.embeddings.openai import OpenAIEmbedding
-# from llama_index.llms.nvidia import NVIDIA
-# from llama_index.llms.upstage import Upstage
-# from llama_index.embeddings.upstage import UpstageEmbedding
 from llama_index.core.schema import TextNode
 
 
@@ -23,7 +20,7 @@ VECTOR_DB_DIR = os.path.join("locations", "descriptions_vector_store")
 GENERATE_DESC = False     # generates description for vector db indexing, each location costs an LLM call
 GENERATE_SUITABLE_TIMES = False    # optimizes suitable times for visiting, each location costs an LLM call (applicable for tourist attractions only)
 GENERATE_VECTOR_INDEX = False   # takes each location as a Document object and embeds it into the vector space alongside its description
-TEST_VECTOR_INDEX = False   # for testing purposes only, always set to False
+TEST_VECTOR_INDEX = True   # for testing purposes only, always set to False
 
 TO_OMIT = ['.DS_Store']  # mac cache
 
