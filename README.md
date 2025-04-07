@@ -3,7 +3,11 @@
     ```bash
     cd to this directory
     
-    docker build --no-cache -t taiwan-jom-app .
+    # arm64
+    docker build --platform=linux/arm64 --no-cache -t taiwan-jom-app .
+
+    # amd64
+    docker build --platform=linux/amd64 --no-cache -t taiwan-jom-app .
     ```
 2. Create a new container based on built image and run. If you wish to directly start the inferencing server, run:
     ```bash
@@ -16,9 +20,15 @@
 ```bash
 docker login
 
-docker tag taiwan-jom-app yixian02/taiwan-jom-app:python-3.10-slim
+# arm64
+docker tag taiwan-jom-app yixian02/taiwan-jom-app:python-3.10-slim-arm64
 
-docker push yixian02/taiwan-jom-app:python-3.10-slim
+docker push yixian02/taiwan-jom-app:python-3.10-slim-arm64
+
+# amd64
+docker tag taiwan-jom-app yixian02/taiwan-jom-app:python-3.10-slim-amd64
+
+docker push yixian02/taiwan-jom-app:python-3.10-slim-amd64
 ```
 Verify your push <a href='https://hub.docker.com/u/yixian02'>here</a>.
 
@@ -26,9 +36,15 @@ Verify your push <a href='https://hub.docker.com/u/yixian02'>here</a>.
 
 # Pulling and Running the built image from DockerHub
 ```bash
-docker pull yixian02/taiwan-jom-app:python-3.10-slim
+# arm64
+docker pull yixian02/taiwan-jom-app:python-3.10-slim-arm64
 
-docker run -it --rm -p 5000:5000 yixian02/taiwan-jom-app:python-3.10-slim /bin/bash -c "python server.py -a 0.0.0.0 -p 5000"
+docker run -it --rm -p 5000:5000 yixian02/taiwan-jom-app:python-3.10-slim-arm64 /bin/bash -c "python server.py -a 0.0.0.0 -p 5000"
+
+# amd64
+docker pull yixian02/taiwan-jom-app:python-3.10-slim-amd64
+
+docker run -it --rm -p 5000:5000 yixian02/taiwan-jom-app:python-3.10-slim-amd64 /bin/bash -c "python server.py -a 0.0.0.0 -p 5000"
 ```
 
 <br/>
