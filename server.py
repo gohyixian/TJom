@@ -11,7 +11,7 @@ from llama_index.core import Settings
 from llama_index.llms.openai import OpenAI
 from llama_index.embeddings.openai import OpenAIEmbedding
 from image_generator import add_images_to_script, get_place_img
-from scripts.script import ScriptGenerator, Translator
+from scripts.old_script import ScriptGenerator, Translator
 from utils import extract_photo_reference, read_file
 
 
