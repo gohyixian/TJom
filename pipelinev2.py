@@ -93,7 +93,7 @@ departure_airport_IATA_extraction = PromptTemplate(
 
     Query: {user_specs}
 
-    Output only the airport's IATA code as a 3-character string with **no additional text**.
+    Now strictly output the airport's 3-character IATA code only without any additional text, explaination, or reasoning.
     """
 )
 
@@ -122,7 +122,7 @@ flight_class_selection_prompt = PromptTemplate(
     {user_query}
 
     --Output--
-    Output strictly one integer:
+    Strictly output the one integer that represents the selected flight class without any additional text, explaination, or reasoning:
     """
 )
 
