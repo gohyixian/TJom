@@ -29,7 +29,7 @@ if not os.path.exists(OUTPUT_DIR):
     os.makedirs(OUTPUT_DIR)
 
 class ScriptGenerator:
-    def __init__(self, user_prompt,characters_num):
+    def __init__(self, user_prompt, characters_num):
         self.user_prompt = user_prompt
         self.character_name = ''  # Initialize as empty string
         self.characters_num=characters_num

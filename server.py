@@ -12,6 +12,8 @@ from llama_index.llms.openai import OpenAI
 from llama_index.embeddings.openai import OpenAIEmbedding
 from image_generator import add_images_to_script, get_place_img
 from scripts.old_script import ScriptGenerator, Translator
+from scripts.translator import Translator as TranslatorV2
+from scripts.main import generate_scripts, combine_txt_to_json, OUTPUT_DIR
 from utils import extract_photo_reference, read_file
 
 
@@ -89,8 +91,8 @@ def generate_trip():
     return jsonify({'data': flattened_trip_dict})
 
 
-@app.route('/generate_script', methods=['POST'])
-def generate_script():
+@app.route('/generate_script_legacy', methods=['POST'])
+def generate_script_legacy():
     try:
         start_time = time.time()
         # Get the JSON data from the request
@@ -137,6 +139,48 @@ def generate_script():
             return jsonify({
                 "eng_script": read_file("sample_usages/script.json", "json"),
                 "cn_script": read_file("sample_usages/translated_output.json", "json"),
+            })
+    except Exception as e:
+        return jsonify({"error": f"Error generating script: {e}"})
+
+
+@app.route('/generate_script', methods=['POST'])
+def generate_script():
+    try:
+        start_time = time.time()
+        # Get the JSON data from the request
+        
+        # test mode
+        mode = request.form.get('mode')  # test
+        
+        if "test" not in str(mode).lower().strip():
+            # Extract the required fields from the JSON body
+            characters_num = request.form.get('characters_num')
+            cafe_name = request.form.get('cafe_name')
+            cafe_environment = request.form.get('cafe_environment')
+
+            # check for missing fields
+            if not characters_num or not cafe_name or not cafe_environment:
+                return jsonify({"error": "Missing required fields"}), 400
+
+            # init script generator
+            generate_scripts(f"为咖啡馆：{cafe_name}（环境：{cafe_environment}）生成一个包含 {characters_num} 个角色的剧本", characters_num)
+            mandarin_json_path=combine_txt_to_json(OUTPUT_DIR)
+            translator = TranslatorV2()
+            english_json_path = os.path.join(OUTPUT_DIR, "english_script.json")
+            translator.translate_and_save(input_file=mandarin_json_path, output_file=english_json_path)
+
+            print(f"[Generate Script took {time.time() - start_time} secs]")
+
+            return jsonify({
+                "eng_script": add_images_to_script(read_file(english_json_path, "json")),
+                "cn_script": add_images_to_script(read_file(mandarin_json_path, "json")),
+            })
+
+        else:
+            return jsonify({
+                "eng_script": read_file("sample_usages/english_script.json", "json"),
+                "cn_script": read_file("sample_usages/mandarin_script.json", "json"),
             })
     except Exception as e:
         return jsonify({"error": f"Error generating script: {e}"})

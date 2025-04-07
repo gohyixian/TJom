@@ -15,8 +15,8 @@ if not os.path.exists(OUTPUT_DIR):
     os.makedirs(OUTPUT_DIR)
 
 
-def generate_scripts(user_prompt):
-    script_generator = ScriptGenerator(user_prompt)
+def generate_scripts(user_prompt, characters_num=3):
+    script_generator = ScriptGenerator(user_prompt, characters_num)
     script_generator.run_tasks()
 
     
@@ -178,7 +178,7 @@ def combine_txt_to_json(output_dir):
 
 
 if __name__ == "__main__":
-    generate_scripts(3,'生成一个包含3个角色的剧本。')
+    generate_scripts('生成一个包含3个角色的剧本。', 3)
     mandarin_json_path=combine_txt_to_json(OUTPUT_DIR)
     # mandarin_json_path='scripts/outputs/jubensha_1/combined_output.json'
     translator = Translator()
