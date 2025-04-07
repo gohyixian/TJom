@@ -29,9 +29,10 @@ if not os.path.exists(OUTPUT_DIR):
     os.makedirs(OUTPUT_DIR)
 
 class ScriptGenerator:
-    def __init__(self, user_prompt):
+    def __init__(self, user_prompt,characters_num):
         self.user_prompt = user_prompt
         self.character_name = ''  # Initialize as empty string
+        self.characters_num=characters_num
         self.llm = ChatOpenAI(model='gpt-3.5-turbo')
         self.rag_tool = PDFSearchTool(
             pdf='scripts/RAG/RAG.pdf',
@@ -138,8 +139,8 @@ class ScriptGenerator:
         )
 
         self.script_writing_task = Task(
-            description=f"""为所有位角色分别撰写完整的案发前四天事件记录。包括具体日期、关键事件、角色内心想法、计划、互动等内容，体现角色的动机与行为逻辑。每篇记录需完整，不能留有未完句式，结尾需包含总结或反思性陈述。""",
-            expected_output=f"每位角色一份完整的四天事件记录，总共份。所有内容必须为中文。",
+            description=f"""为所有{self.characters_num}位角色分别撰写完整的案发前四天事件记录。包括具体日期、关键事件、角色内心想法、计划、互动等内容，体现角色的动机与行为逻辑。每篇记录需完整，不能留有未完句式，结尾需包含总结或反思性陈述。""",
+            expected_output=f"每位{self.characters_num}角色一份完整的四天事件记录，总共份。所有内容必须为中文。",
             agent=self.script_writer_agent,
             output_file=os.path.join(OUTPUT_DIR, "Script Writer.txt")
         )

@@ -1,32 +1,13 @@
 from collections import OrderedDict
 import os
 import json
-from crewai import Agent, Task, Crew, Process
-from langchain_openai import ChatOpenAI
-from crewai_tools import PDFSearchTool
-from openai import OpenAI
-import gradio as gr
-import re
-import json
-from fpdf import FPDF
-from docx import Document
-import gradio as gr
-from docx.shared import Pt
-from langchain_huggingface import HuggingFaceEmbeddings
-from langchain.chains import RetrievalQA
-from langchain.text_splitter import CharacterTextSplitter
-from langchain_community.document_loaders import TextLoader
-from langchain_community.vectorstores import FAISS
-from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.chat_models import ChatOpenAI
 from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
 import ast
-import os 
 from scripts.jubensha_script import ScriptGenerator
 from scripts.translator import Translator
-import os
-import json
+
 
 
 OUTPUT_DIR = "scripts/outputs/jubensha"
@@ -197,7 +178,7 @@ def combine_txt_to_json(output_dir):
 
 
 if __name__ == "__main__":
-    generate_scripts('生成一个包含3个角色的剧本。')
+    generate_scripts(3,'生成一个包含3个角色的剧本。')
     mandarin_json_path=combine_txt_to_json(OUTPUT_DIR)
     # mandarin_json_path='scripts/outputs/jubensha_1/combined_output.json'
     translator = Translator()
