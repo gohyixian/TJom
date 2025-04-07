@@ -39,6 +39,13 @@ def upload_restaurant_data():
             url = place_data.get('url', None)
             user_ratings_total = place_data.get('user_ratings_total', None)
             website = place_data.get('website', None)
+            
+            # checks
+            keywords_to_omit = ["my", "malaysia", "msia"]
+            for keyword in keywords_to_omit:
+                if keyword in str(address).lower():
+                    print(f"Skipping {place_name}: Contains keyword '{keyword}'.")
+                    break
 
             restaurant_data = {
                 'address': address,
