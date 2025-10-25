@@ -163,9 +163,11 @@ cython_debug/
 
 
 .env
+.vscode
 .DS_Store
 **/*.db.lock
 db/*
 jejom-*-firebase-adminsdk-*.json
 google-services.json
 scripts/outputs/tmp/*
+scripts/outputs/*

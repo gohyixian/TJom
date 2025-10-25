@@ -1,8 +1,12 @@
 import os
 from typing import List
 import requests
-from utils import generate_upstage_response
+from utils import get_model_response
 from dotenv import load_dotenv; load_dotenv()
+
+# LLM = "gpt-3.5-turbo"
+LLM = "gpt-3.5-turbo"
+
 
 def parse_chunk_string(input_string: str) -> List[dict]:
     chunks = [chunk.strip() for chunk in input_string.split(';') if chunk.strip()]
@@ -41,13 +45,16 @@ The murder mystery unfolds in the ancient city of Seongju, located on the outski
 Response:
 The murder mystery unfolds in the ancient city of Seongju, located on the outskirts of Jeju Island. This city, once a thriving hub of trade and culture, has fallen into decay, its grand palaces and temples now reclaimed by the surrounding jungle. The city's history is steeped in the legends of the island's guardian spirits, the Dokkaebi, and the mythical sea serpent, the Yeouija. > ancient city;
 The story begins with the discovery of a murdered body in the heart of the city, near the ruins of the ancient royal palace. The victim, a wealthy merchant named Lee, was known for his ruthless business practices and exploitation of the island's resources. His body is found with a dagger plunged into his heart, adorned with intricate carvings of the Dokkaebi and the Yeouija. > murder;
+
+Actual Data:
+============
 Script:
 {script}
-Response:
 
+Response:
 '''
     input_text = chunking_keywords_prompt.format(script=script)
-    response = generate_upstage_response(input_text)
+    response = get_model_response(input_text, LLM)
 
     return parse_chunk_string(response)
 
@@ -82,29 +89,44 @@ def get_place_img(title: str):
     return get_pexel_img(place_name)
 
 def extract_name_from_title(title: str):
-    # extract_title_prompt = '''
-    # You are given a title of a travel itenerary. You need to extract the name of the travel destination from the title.
-    # You should generate based on the following guidelines:
-    # - ONLY extract and output the name of the travel destination from the title.
-    
-    # For example,
-    # Title: Exploring Jeju's Natural Wonders: A Week-Long Adventure
-    # Response: Jeju
+    extract_title_prompt = '''
+You are given a title of a travel itenerary. You need to extract the name of the travel destination from the title.
+You should generate based on the following guidelines:
+- ONLY extract and output the name of the travel destination from the title.
 
-    # Title: Discovering the Hidden Gems of Seoul: A 5-Day Itinerary
-    # Response: Seoul
+For example,
+Title: 探索台北的都市魅力：五日精彩行程
+Response: 台北
 
-    # Title: Exploring the Temples of Kyoto: A Cultural Journey
-    # Response: Kyoto
+Title: 花莲山海之间的奇幻旅程：七天自然探索
+Response: 花莲
 
-    # Title: {title}
-    # Response: 
-    # '''
-    # input_text = extract_title_prompt.format(title=title)
-    # response = generate_upstage_response(input_text)
+Title: 漫步台南古城：三日文化深度游
+Response: 台南
 
-    # return response
-    return 'Jeju'
+Title: 台中艺术与美食之旅：四天精彩体验
+Response: 台中
+
+Title: 登临阿里山：五日云海与日出奇观
+Response: 阿里山
+
+Title: 环游澎湖群岛：六天海风与渔火的浪漫
+Response: 澎湖
+
+Title: 探索垦丁的阳光与海洋：四天南国假期
+Response: 垦丁
+
+
+Actual Request:
+===============
+Title: {title}
+Response: 
+'''
+    input_text = extract_title_prompt.format(title=title)
+    response = get_model_response(input_text, LLM)
+
+    return response
+    # return 'Taiwan'
 
 def add_images_to_script(script: dict):
     keyword_dict = generate_keyword_from_script(script['Script Planner'])

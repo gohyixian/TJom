@@ -353,7 +353,7 @@ def create_docx(json_data,docx_name,cafe_name):
             run.font.size = Pt(14)
             doc.add_paragraph(json_data['Player Instruction Writer'])
 
-    elif docx_name=='korean_script':
+    elif docx_name=='chinese_script':
         if 'Title' in json_data:
             title_paragraph = doc.add_paragraph("제목")
             run = title_paragraph.runs[0]
@@ -412,8 +412,8 @@ def create_docx(json_data,docx_name,cafe_name):
 #generate riles 
 def generate_files(original_script,translated_script,cafe_name):
     english_script = create_docx(original_script,"english_script",cafe_name)
-    korean_script = create_docx(translated_script,"korean_script",cafe_name)
-    return english_script, korean_script
+    chinese_script = create_docx(translated_script,"chinese_script",cafe_name)
+    return english_script, chinese_script
 
 
 
@@ -450,9 +450,9 @@ with gr.Blocks() as demo:
     btn = gr.Button("Generate Script")
 
     english_output = gr.File(label="Download English Version")
-    korean_output = gr.File(label="Download Korean Version")
+    chinese_output = gr.File(label="Download Chinese Version")
     
-    btn.click(fn=generate_scripts, inputs=[characters_num,cafe_name,cafe_environment],outputs=[english_output, korean_output])
+    btn.click(fn=generate_scripts, inputs=[characters_num,cafe_name,cafe_environment],outputs=[english_output, chinese_output])
 
 if __name__ == "__main__":
     demo.launch()

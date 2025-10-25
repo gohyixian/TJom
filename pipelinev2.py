@@ -569,9 +569,9 @@ class PipelineV2():
 
     def generate_trip(self, end_user_specs: str, end_user_query: str):
         # end_user_specs = "Loves a chill life, doesnt like crowded places, loves coffee, artistic, female, 25, ENTP"
-        end_user_specs = "Nature Lover, Photography, Solo-Traveller"
+        # end_user_specs = "Nature Lover, Photography, Solo-Traveller"
         # end_user_final_query = "Can you plan me a trip to Taiwan from 18 January to 20 January in 2026? My budget is around MYR 3000. " + end_user_specs
-        end_user_final_query = "Can you plan me a 3-day trip to Taiwan starting from 18 January 2026? My budget is around MYR 3000. " + end_user_specs
+        # end_user_final_query = "Can you plan me a 3-day trip to Taiwan starting from 18 January 2026? My budget is around MYR 3000. " + end_user_specs
 
         starting_date = Settings.llm.complete(get_starting_date_prompt.format(query_str=end_user_query))
         ending_date = Settings.llm.complete(get_ending_date_prompt.format(query_str=end_user_query))

@@ -17,6 +17,7 @@ REFRESH_GMAPS = False    # 1: True to re-crawl all raw locations from google-map
 FILTER_RAW = False   # 2: filters out irrelevant locations from raw data
 GET_DETAILED = False  # 3: get detailed information about each location
 
+
 # API_KEY = "<place-your-google-maps-api-key-here>"
 API_KEY = os.getenv("GOOGLE_MAPS_API_KEY")
 gmaps = googlemaps.Client(key=API_KEY)
@@ -28,19 +29,19 @@ DETAILED_DIR = os.path.join("locations", "detailed")
 
 TO_OMIT = ['.DS_Store']  # mac cache
 PLACE_TYPES = {
-    "tourist spot": "tourist_spots",
-    "hotel": "hotels",
-    "restaurant": "restaurants"
+    "tourist spot" : "tourist_spots",
+    "hotel"        : "hotels",
+    "restaurant"   : "restaurants"
 }
 PLACE_TYPES_KEYWORDS = {
-    "tourist_spots": ['tourist', 'attraction'],
-    "hotels": ['hotel', 'inn', 'accomodation', 'guesthouse', 'house', 'lodging', 'resort'],
-    "restaurants": ['cafe', 'restaurant', 'eatery', 'bakery', 'food'],
+    "tourist_spots" : ['tourist', 'attraction'],
+    "hotels"        : ['hotel', 'inn', 'accomodation', 'guesthouse', 'house', 'lodging', 'resort'],
+    "restaurants"   : ['cafe', 'restaurant', 'eatery', 'bakery', 'food'],
 }
 PLACE_TYPES_KEYWORDS_TO_OMIT = {
-    "tourist_spots": [],
-    "hotels": ['lighthouse'],
-    "restaurants": [],
+    "tourist_spots" : [],
+    "hotels"        : ['lighthouse'],
+    "restaurants"   : [],
 }
 KEY_REGIONS = [
     'Tainan',
@@ -147,9 +148,9 @@ if FILTER_RAW:
         
         print(f"[{category}] : {len(list(filtered_data.keys()))}")
 
-# [tourist_spots] : 162
-# [hotels] : 306
-# [restaurants] : 424
+# [tourist_spots] : 172
+# [hotels] : 236
+# [restaurants] : 158
 
 
 if GET_DETAILED:

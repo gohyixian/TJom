@@ -29,6 +29,7 @@ CORS(app, resources={r"/*": {"origins": [f"http://10.168.105.128:{args.server_po
 load_dotenv()
 Settings.llm=OpenAI(model='gpt-3.5-turbo', temperature=0.0)
 Settings.embed_model=OpenAIEmbedding(model='text-embedding-3-small')
+embed_model_dim = 1536  # text-embedding-3-small
 
 # FIREBASE_CRED_FILE = "google-services.json"
 FIREBASE_CRED_FILE = "jejom-d5d61-firebase-adminsdk-hxhng-6f02508a1f.json"
@@ -39,7 +40,7 @@ db = firestore.client()
 
 from pipelinev2 import PipelineV2
 pipeline = PipelineV2(
-    embed_model_size         = 1536, # text-embedding-3-small
+    embed_model_size         = embed_model_dim,
     accomodations_sim_top_k  = 500,
     restaurants_sim_top_k    = 500,
     tourist_spots_sim_top_k  = 500,
@@ -89,6 +90,48 @@ def generate_trip():
         print(f"[Generate Trip took {time.time() - start_time} secs]")
     flattened_trip_dict = extract_photo_reference(trip_dict)
     return jsonify({'data': flattened_trip_dict})
+
+
+@app.route('/generate_script', methods=['POST'])
+def generate_script():
+    try:
+        start_time = time.time()
+        # Get the JSON data from the request
+        
+        # test mode
+        mode = request.form.get('mode')  # test
+        
+        if "test" not in str(mode).lower().strip():
+            # Extract the required fields from the JSON body
+            characters_num = request.form.get('characters_num')
+            cafe_name = request.form.get('cafe_name')
+            cafe_environment = request.form.get('cafe_environment')
+
+            # check for missing fields
+            if not characters_num or not cafe_name or not cafe_environment:
+                return jsonify({"error": "Missing required fields"}), 400
+
+            # init script generator
+            generate_scripts(f"为咖啡馆：{cafe_name}（环境：{cafe_environment}）生成一个包含 {characters_num} 个角色的剧本", characters_num)
+            mandarin_json_path=combine_txt_to_json(OUTPUT_DIR)
+            translator = TranslatorV2()
+            english_json_path = os.path.join(OUTPUT_DIR, "english_script.json")
+            translator.translate_and_save(input_file=mandarin_json_path, output_file=english_json_path)
+
+            print(f"[Generate Script took {time.time() - start_time} secs]")
+
+            return jsonify({
+                "eng_script": add_images_to_script(read_file(english_json_path, "json")),
+                "cn_script": add_images_to_script(read_file(mandarin_json_path, "json")),
+            })
+
+        else:
+            return jsonify({
+                "eng_script": read_file("sample_usages/english_script.json", "json"),
+                "cn_script": read_file("sample_usages/mandarin_script.json", "json"),
+            })
+    except Exception as e:
+        return jsonify({"error": f"Error generating script: {e}"})
 
 
 @app.route('/generate_script_legacy', methods=['POST'])
@@ -142,49 +185,6 @@ def generate_script_legacy():
             })
     except Exception as e:
         return jsonify({"error": f"Error generating script: {e}"})
-
-
-@app.route('/generate_script', methods=['POST'])
-def generate_script():
-    try:
-        start_time = time.time()
-        # Get the JSON data from the request
-        
-        # test mode
-        mode = request.form.get('mode')  # test
-        
-        if "test" not in str(mode).lower().strip():
-            # Extract the required fields from the JSON body
-            characters_num = request.form.get('characters_num')
-            cafe_name = request.form.get('cafe_name')
-            cafe_environment = request.form.get('cafe_environment')
-
-            # check for missing fields
-            if not characters_num or not cafe_name or not cafe_environment:
-                return jsonify({"error": "Missing required fields"}), 400
-
-            # init script generator
-            generate_scripts(f"为咖啡馆：{cafe_name}（环境：{cafe_environment}）生成一个包含 {characters_num} 个角色的剧本", characters_num)
-            mandarin_json_path=combine_txt_to_json(OUTPUT_DIR)
-            translator = TranslatorV2()
-            english_json_path = os.path.join(OUTPUT_DIR, "english_script.json")
-            translator.translate_and_save(input_file=mandarin_json_path, output_file=english_json_path)
-
-            print(f"[Generate Script took {time.time() - start_time} secs]")
-
-            return jsonify({
-                "eng_script": add_images_to_script(read_file(english_json_path, "json")),
-                "cn_script": add_images_to_script(read_file(mandarin_json_path, "json")),
-            })
-
-        else:
-            return jsonify({
-                "eng_script": read_file("sample_usages/english_script.json", "json"),
-                "cn_script": read_file("sample_usages/mandarin_script.json", "json"),
-            })
-    except Exception as e:
-        return jsonify({"error": f"Error generating script: {e}"})
-
 
 
 if __name__ == '__main__':

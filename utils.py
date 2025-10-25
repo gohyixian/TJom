@@ -24,9 +24,8 @@ def parse_output(output: str, fields: list[str]) -> dict:
     
     return parsed_data
 
-def generate_upstage_response(input: str):
-    # llm = Upstage(api_key=os.getenv('UPSTAGE_API_KEY'))
-    llm = OpenAI(model="gpt-3.5-turbo", temperature=0.0)
+def get_model_response(input: str, model: str):
+    llm = OpenAI(model=model, temperature=0.0)
  
     response = llm.complete(
         prompt=input,

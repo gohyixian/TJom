@@ -299,10 +299,11 @@ if GENERATE_VECTOR_INDEX:
 
 
 if TEST_VECTOR_INDEX:
-    # user_query = "Get me a restaurant that has a nice view beside the ocean. Also, i need halal food!"
+    user_query = "Get me a restaurant that has a nice view beside the ocean. Also, i need halal food!"
     # user_query = "i love taiwan street snacks! get me one near the taiwan international airport"
-    user_query = "i love scenic views, get me one that is suitable for evening times!"
-    similarity_top_k = 400
+    # user_query = "i love scenic views, get me one that is suitable for evening times!"
+    similarity_top_k = 3
+    
     # uri = os.path.join("locations", "descriptions_vector_store", "hotels.db")
     # uri = os.path.join("locations", "descriptions_vector_store", "restaurants.db")
     uri = os.path.join("locations", "descriptions_vector_store", "tourist_spots.db")
