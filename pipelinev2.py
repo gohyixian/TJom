@@ -442,12 +442,21 @@ class PipelineV2():
         try:
             search = GoogleSearch(search_params)
             flights_dict = search.get_dict()
-            print(flights_dict)
+            # print(flights_dict)
+            
+            # # DEBUG
+            # # =====================================
+            # with open("raw_flight.json", "w") as f:
+            #     json.dump(flights_dict, f, indent=4)
+            # # =====================================
+            
         except Exception as e:
             print(f"[Get Flights] Error: {e}")
             flights_dict = None
         
         departure_flight_backup = {}   # final resort
+        departure_flight_dict = {}     # initialize departure flight dict
+        return_flight_dict = {}        # initialize return flight dict
         found_departure = False
         found_return = False
         
@@ -476,13 +485,15 @@ class PipelineV2():
                         if "best_flights" in list(return_flights_dict.keys()):
                             return_flight_dict = return_flights_dict["best_flights"][0]
                             found_return = True
+                            break  # Found both departure and return flights, exit the loop
                         else:
                             if "other_flights" in list(return_flights_dict.keys()):
                                 if len(return_flights_dict["other_flights"]) > 0:
                                     return_flight_dict = return_flights_dict["other_flights"][0]
                                     found_return = True
-        
-            if ("other_flights" in list(flights_dict.keys())) and (not found_return):
+                                    break  # Found both departure and return flights, exit the loop
+            
+            if ("other_flights" in list(flights_dict.keys())) and (not found_return) and (not found_departure):
                 if len(flights_dict["other_flights"]) > 0:
                     if not found_departure:
                         departure_flight_backup = copy.deepcopy(flights_dict["other_flights"][0])
@@ -508,11 +519,13 @@ class PipelineV2():
                             if "best_flights" in list(return_flights_dict.keys()):
                                 return_flight_dict = return_flights_dict["best_flights"][0]
                                 found_return = True
+                                break  # Found both departure and return flights, exit the loop
                             else:
                                 if "other_flights" in list(return_flights_dict.keys()):
                                     if len(return_flights_dict["other_flights"]) > 0:
                                         return_flight_dict = return_flights_dict["other_flights"][0]
                                         found_return = True
+                                        break  # Found both departure and return flights, exit the loop
         
         # utility to format time from m to h:m
         def convert_duration_to_string(data):
@@ -532,7 +545,17 @@ class PipelineV2():
                 for item in data:
                     convert_duration_to_string(item)
         print(found_departure, found_return)
+        print(f"departure_flight_dict keys: {list(departure_flight_dict.keys()) if departure_flight_dict else 'None'}")
+        print(f"return_flight_dict keys: {list(return_flight_dict.keys()) if return_flight_dict else 'None'}")
         if found_departure and found_return:
+            # Check if both flight dictionaries have the expected structure
+            if not departure_flight_dict or "price" not in departure_flight_dict:
+                print(f"[Get Flights] Warning: departure_flight_dict missing price key or is empty")
+                return None
+            if not return_flight_dict or "price" not in return_flight_dict:
+                print(f"[Get Flights] Warning: return_flight_dict missing price key or is empty")
+                return None
+                
             _ = departure_flight_dict.pop("price")
             price_total = return_flight_dict.pop("price")
             
@@ -547,6 +570,11 @@ class PipelineV2():
             }
 
         elif found_departure and (not found_return):
+            # Check if departure flight backup has the expected structure
+            if not departure_flight_backup or "price" not in departure_flight_backup:
+                print(f"[Get Flights] Warning: departure_flight_backup missing price key or is empty")
+                return None
+                
             price_total = departure_flight_backup.pop("price")
             
             # convert time format
