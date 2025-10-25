@@ -23,7 +23,7 @@ from google.cloud import firestore
 
 from utils import extract_single_date
 
-load_dotenv()
+load_dotenv(override=True)
 VERBOSE = False
 CLUSTER_DESTINATION_DISTANCE = 15  # km
 SERPAPI_API_KEY_VAE_NAME = "SERPAPI_API_KEY"

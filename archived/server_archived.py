@@ -11,7 +11,7 @@ from llama_index.embeddings.upstage import UpstageEmbedding
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": ["http://10.168.105.128:5000", "*"]}})
 
-load_dotenv()
+load_dotenv(override=True)
 MAX_JSON_TRY = 3
 CHECK_MATCH_FROM_CACHE_TOP_K = 2
 Settings.llm = Groq(model='llama3-groq-70b-8192-tool-use-preview')

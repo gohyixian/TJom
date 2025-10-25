@@ -26,7 +26,7 @@ args = parser.parse_args()
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": [f"http://10.168.105.128:{args.server_port}", "*"]}})
 
-load_dotenv()
+load_dotenv(override=True)
 Settings.llm=OpenAI(model='gpt-3.5-turbo', temperature=0.0)
 Settings.embed_model=OpenAIEmbedding(model='text-embedding-3-small')
 embed_model_dim = 1536  # text-embedding-3-small

@@ -20,7 +20,7 @@ from llama_index.agent.openai import OpenAIAgent
 
 
 # Global wide models
-load_dotenv() # api keys
+load_dotenv(override=True) # api keys
 Settings.llm = Groq(model='llama3-groq-70b-8192-tool-use-preview')
 # Settings.llm = Upstage(model='solar-1-mini-chat')
 Settings.embed_model = UpstageEmbedding(model='solar-embedding-1-large')

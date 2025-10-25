@@ -23,7 +23,7 @@ from llama_index.embeddings.upstage import UpstageEmbedding
 from llama_index.core.tools import QueryEngineTool, ToolMetadata, FunctionTool
 from llama_index.agent.openai import OpenAIAgent
 
-load_dotenv()
+load_dotenv(override=True)
 VERBOSE = False
 CLUSTER_DESTINATION_DISTANCE = 15  # km
 

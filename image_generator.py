@@ -2,7 +2,7 @@ import os
 from typing import List
 import requests
 from utils import get_model_response
-from dotenv import load_dotenv; load_dotenv()
+from dotenv import load_dotenv; load_dotenv(override=True)
 
 # LLM = "gpt-3.5-turbo"
 LLM = "gpt-3.5-turbo"

@@ -5,7 +5,7 @@ import googlemaps
 from tqdm import tqdm
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv(override=True)
 
 
 # google maps api console: https://console.cloud.google.com/google/maps-apis/credentials?invt=AbuCaw&project=tough-volt-335906

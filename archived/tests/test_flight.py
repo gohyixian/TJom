@@ -14,7 +14,7 @@ from llama_index.core.tools import QueryEngineTool, ToolMetadata, FunctionTool
 from llama_index.agent.openai import OpenAIAgent
 from tests.prompts import contextualize_prompt, classify_prompt, qa_system_prompt, qa_prompt, flight_prompt
 
-load_dotenv()
+load_dotenv(override=True)
 
 # Global wide models
 Settings.llm = Groq(model='llama3-groq-70b-8192-tool-use-preview')

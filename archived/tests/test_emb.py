@@ -3,7 +3,7 @@ from llama_index.core import Settings
 from llama_index.embeddings.upstage import UpstageEmbedding
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv(override=True)
 
 Settings.embed_model = UpstageEmbedding(model='solar-embedding-1-large')
 

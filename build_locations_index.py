@@ -12,7 +12,7 @@ from llama_index.embeddings.openai import OpenAIEmbedding
 from llama_index.core.schema import TextNode
 
 
-load_dotenv()
+load_dotenv(override=True)
 DETAILED_DIR = os.path.join("locations", "detailed")
 DESCRIPTION_DIR = os.path.join("locations", "descriptions")
 VECTOR_DB_DIR = os.path.join("locations", "descriptions_vector_store")
