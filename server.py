@@ -1,20 +1,25 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+
 import os
 import json
 import time
+import shutil
 import argparse
 from dotenv import load_dotenv
-import firebase_admin
-from firebase_admin import credentials, firestore
 from llama_index.core import Settings
 from llama_index.llms.openai import OpenAI
 from llama_index.embeddings.openai import OpenAIEmbedding
+
+import firebase_admin
+from firebase_admin import credentials, firestore
+
 from image_generator import add_images_to_script, get_place_img
 from scripts.old_script import ScriptGenerator, Translator
 from scripts.translator import Translator as TranslatorV2
 from scripts.main import generate_scripts, combine_txt_to_json, OUTPUT_DIR
 from utils import extract_photo_reference, read_file
+
 
 
 parser = argparse.ArgumentParser(description='Backend Server Deployment')
@@ -106,83 +111,44 @@ def generate_script():
             characters_num = request.form.get('characters_num')
             cafe_name = request.form.get('cafe_name')
             cafe_environment = request.form.get('cafe_environment')
-
+            
             # check for missing fields
             if not characters_num or not cafe_name or not cafe_environment:
                 return jsonify({"error": "Missing required fields"}), 400
-
+            
+            # delete dir to remove everything from previous session
+            if os.path.exists(OUTPUT_DIR):
+                shutil.rmtree(OUTPUT_DIR)
+                print(f">>> Deleted directory: {OUTPUT_DIR}")
+            else:
+                print(f">>> Directory does not exist: {OUTPUT_DIR}")
+            
+            # set dir
+            if not os.path.exists(OUTPUT_DIR):
+                print(f">>> Created directory: {OUTPUT_DIR}")
+                os.makedirs(OUTPUT_DIR)
+            
             # init script generator
-            generate_scripts(f"为咖啡馆：{cafe_name}（环境：{cafe_environment}）生成一个包含 {characters_num} 个角色的剧本", characters_num)
+            generate_scripts(f"为台湾历史遗址/旅游胜地：{cafe_name}（环境：{cafe_environment}）生成一个包含 {characters_num} 个角色的剧本", characters_num)
             mandarin_json_path=combine_txt_to_json(OUTPUT_DIR)
             translator = TranslatorV2()
             english_json_path = os.path.join(OUTPUT_DIR, "english_script.json")
             translator.translate_and_save(input_file=mandarin_json_path, output_file=english_json_path)
-
+            
+            # mount images
+            en_script = add_images_to_script(read_file(english_json_path, "json"))
+            cn_script = add_images_to_script(read_file(mandarin_json_path, "json"))
+            
             print(f"[Generate Script took {time.time() - start_time} secs]")
-
+            
             return jsonify({
-                "eng_script": add_images_to_script(read_file(english_json_path, "json")),
-                "cn_script": add_images_to_script(read_file(mandarin_json_path, "json")),
+                "eng_script" : en_script,
+                "cn_script"  : cn_script,
             })
 
         else:
-            return jsonify({
-                "eng_script": read_file("sample_usages/english_script.json", "json"),
-                "cn_script": read_file("sample_usages/mandarin_script.json", "json"),
-            })
-    except Exception as e:
-        return jsonify({"error": f"Error generating script: {e}"})
-
-
-@app.route('/generate_script_legacy', methods=['POST'])
-def generate_script_legacy():
-    try:
-        start_time = time.time()
-        # Get the JSON data from the request
+            return jsonify(read_file("sample_usages/generate_script.json", "json"))
         
-        # test mode
-        mode = request.form.get('mode')  # test
-        
-        if "test" not in str(mode).lower().strip():
-            # Extract the required fields from the JSON body
-            characters_num = request.form.get('characters_num')
-            cafe_name = request.form.get('cafe_name')
-            cafe_environment = request.form.get('cafe_environment')
-
-            # check for missing fields
-            if not characters_num or not cafe_name or not cafe_environment:
-                return jsonify({"error": "Missing required fields"}), 400
-
-            # init script generator
-            script_generator = ScriptGenerator(
-                characters_num=characters_num,
-                cafe_name=cafe_name,
-                cafe_environment=cafe_environment
-            )
-
-            # run tasks and generate script
-            output_json_path, cafe_name = script_generator.run_tasks()
-
-
-            input_directory = "output_folder"
-            input_file_path = os.path.join(input_directory, "script.json")
-            output_file_path = os.path.join(input_directory, "translated_output.json")
-
-            # translation
-            translator = Translator()
-            translator.translate_and_save(input_file_path, output_file_path)
-            print(f"[Generate Script took {time.time() - start_time} secs]")
-
-            return jsonify({
-                "eng_script": add_images_to_script(read_file(output_json_path, "json")),
-                "cn_script": add_images_to_script(read_file(output_file_path, "json")),
-            })
-
-        else:
-            return jsonify({
-                "eng_script": read_file("sample_usages/script.json", "json"),
-                "cn_script": read_file("sample_usages/translated_output.json", "json"),
-            })
     except Exception as e:
         return jsonify({"error": f"Error generating script: {e}"})
 
@@ -190,3 +156,59 @@ def generate_script_legacy():
 if __name__ == '__main__':
     app.run(debug=True, host=args.server_address, use_reloader=False)
     # app.run(debug=True, host='0.0.0.0', use_reloader=False)
+
+
+
+
+
+# @app.route('/generate_script_legacy', methods=['POST'])
+# def generate_script_legacy():
+#     try:
+#         start_time = time.time()
+#         # Get the JSON data from the request
+        
+#         # test mode
+#         mode = request.form.get('mode')  # test
+        
+#         if "test" not in str(mode).lower().strip():
+#             # Extract the required fields from the JSON body
+#             characters_num = request.form.get('characters_num')
+#             cafe_name = request.form.get('cafe_name')
+#             cafe_environment = request.form.get('cafe_environment')
+
+#             # check for missing fields
+#             if not characters_num or not cafe_name or not cafe_environment:
+#                 return jsonify({"error": "Missing required fields"}), 400
+
+#             # init script generator
+#             script_generator = ScriptGenerator(
+#                 characters_num=characters_num,
+#                 cafe_name=cafe_name,
+#                 cafe_environment=cafe_environment
+#             )
+
+#             # run tasks and generate script
+#             output_json_path, cafe_name = script_generator.run_tasks()
+
+
+#             input_directory = "output_folder"
+#             input_file_path = os.path.join(input_directory, "script.json")
+#             output_file_path = os.path.join(input_directory, "translated_output.json")
+
+#             # translation
+#             translator = Translator()
+#             translator.translate_and_save(input_file_path, output_file_path)
+#             print(f"[Generate Script took {time.time() - start_time} secs]")
+
+#             return jsonify({
+#                 "eng_script": add_images_to_script(read_file(output_json_path, "json")),
+#                 "cn_script": add_images_to_script(read_file(output_file_path, "json")),
+#             })
+
+#         else:
+#             return jsonify({
+#                 "eng_script": read_file("sample_usages/script.json", "json"),
+#                 "cn_script": read_file("sample_usages/translated_output.json", "json"),
+#             })
+#     except Exception as e:
+#         return jsonify({"error": f"Error generating script: {e}"})

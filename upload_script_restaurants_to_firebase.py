@@ -1,3 +1,9 @@
+"""
+NOTE (20251027):
+Idea changed from "Script Restaurants" to "Historical Sites".
+Code wise, nothing changes, keys are the same, just that content are updated.
+"""
+
 import json
 import uuid
 import firebase_admin
@@ -14,10 +20,16 @@ db = firestore.client()
 
 
 def upload_restaurant_data():
-    with open('locations/detailed/restaurants_detailed.json', 'r', encoding='utf-8') as details_file:
+    # with open('locations/detailed/restaurants_detailed.json', 'r', encoding='utf-8') as details_file:
+    #     detailed_places = json.load(details_file)
+    
+    # with open('locations/descriptions/restaurants_descriptions.json', 'r', encoding='utf-8') as descriptions_file:
+    #     place_descriptions = json.load(descriptions_file)
+    
+    with open('locations/detailed/tourist_spots_detailed.json', 'r', encoding='utf-8') as details_file:
         detailed_places = json.load(details_file)
     
-    with open('locations/descriptions/restaurants_descriptions.json', 'r', encoding='utf-8') as descriptions_file:
+    with open('locations/descriptions/tourist_spots_descriptions.json', 'r', encoding='utf-8') as descriptions_file:
         place_descriptions = json.load(descriptions_file)
     
     collection_name = 'script_restaurant'
