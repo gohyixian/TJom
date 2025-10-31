@@ -56,7 +56,8 @@ pipeline = PipelineV2(
     restaurants_json         = os.path.join('locations', 'detailed', 'restaurants_detailed.json'),
     tourist_spots_json       = os.path.join('locations', 'detailed', 'tourist_spots_detailed.json'),
     firestore_db             = db,
-    firestore_db_path        = 'script_restaurant'
+    # firestore_db_path        = 'script_restaurant'
+    firestore_db_path        = 'script_restaurant_new'
 )
 
 @app.route('/')

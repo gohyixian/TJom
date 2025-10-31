@@ -1100,9 +1100,10 @@ class PipelineV2():
             accom_dict = get_accom_given_name(accom_name, list_of_selected_accom_dicts)
             if accom_dict is not None:
                 for dd in date_lists:
-                    accom_dict['startDate'] = dd.get('startDate')
-                    accom_dict['endDate'] = dd.get('endDate')
-                    trip_dict_accomodations.append(accom_dict)
+                    accom_entry = copy.deepcopy(accom_dict)
+                    accom_entry['startDate'] = dd.get('startDate')
+                    accom_entry['endDate'] = dd.get('endDate')
+                    trip_dict_accomodations.append(accom_entry)
         trip_dict['accomodations'] = trip_dict_accomodations
 
         trip_dict_destinations = []

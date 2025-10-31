@@ -32,12 +32,15 @@ def upload_restaurant_data():
     with open('locations/descriptions/tourist_spots_descriptions.json', 'r', encoding='utf-8') as descriptions_file:
         place_descriptions = json.load(descriptions_file)
     
-    collection_name = 'script_restaurant'
+    collection_name = 'script_restaurant_new'
     
     place_count = 0 
     for place_name, place_data in detailed_places.items():
         if place_name not in place_descriptions:
             print(f"Skipping {place_name}: Description not found.")
+            continue
+        
+        if any(i in str(place_name).lower() for i in ["bicycle"]):
             continue
         
         try:
@@ -46,6 +49,10 @@ def upload_restaurant_data():
             images = [photo['photo_reference'] for photo in place_data.get('photos', [])]
             lat = place_data.get('geometry', {}).get('location', {}).get('lat', None)
             long = place_data.get('geometry', {}).get('location', {}).get('lng', None)
+            
+            assert lat is not None
+            assert long is not None
+            
             name = place_data.get('name', None)
             business_status = place_data.get('business_status', None)
             current_opening_hours = place_data.get('“current_opening_hours”', {}).get('weekday_text', None)
